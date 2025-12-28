@@ -1,26 +1,147 @@
 @import "tailwindcss";
 
+/* === THÈME LEADMAGNET AUDIO - TAROT === */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Base */
+  --background: #F5F0E8;
+  --foreground: #1A1A1A;
+
+  /* Primary - Doré */
+  --primary: #A68245;
+  --primary-light: #C9A66B;
+  --primary-dark: #8B6914;
+  --primary-muted: #D4C4A8;
+
+  /* Secondary - Brun profond */
+  --secondary: #4A3728;
+  --secondary-light: #6B5344;
+  --secondary-dark: #2E2218;
+  --secondary-muted: #8B7355;
+
+  /* Tertiary - Bordeaux */
+  --tertiary: #722F37;
+  --tertiary-light: #9A4A54;
+  --tertiary-dark: #4A1F24;
+  --tertiary-muted: #A67478;
+
+  /* Neutres */
+  --white: #FFFFFF;
+  --cream: #FAF7F2;
+  --beige: #E8E0D5;
+  --gray: #9A9590;
+  --charcoal: #3D3A37;
+  --black: #0A0A0A;
+
+  /* États */
+  --success: #4A7C59;
+  --error: #A63D40;
+  --warning: #D4A03E;
+  --info: #5B7B8C;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(26, 26, 26, 0.08);
+  --shadow-md: 0 4px 16px rgba(26, 26, 26, 0.12);
+  --shadow-lg: 0 8px 32px rgba(26, 26, 26, 0.16);
+  --shadow-gold: 0 4px 20px rgba(166, 130, 69, 0.3);
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Fonts */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Base Colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Primary */
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-muted: var(--primary-muted);
+
+  /* Secondary */
+  --color-secondary: var(--secondary);
+  --color-secondary-light: var(--secondary-light);
+  --color-secondary-dark: var(--secondary-dark);
+  --color-secondary-muted: var(--secondary-muted);
+
+  /* Tertiary */
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-light: var(--tertiary-light);
+  --color-tertiary-dark: var(--tertiary-dark);
+  --color-tertiary-muted: var(--tertiary-muted);
+
+  /* Neutres */
+  --color-white: var(--white);
+  --color-cream: var(--cream);
+  --color-beige: var(--beige);
+  --color-gray: var(--gray);
+  --color-charcoal: var(--charcoal);
+  --color-black: var(--black);
+
+  /* États */
+  --color-success: var(--success);
+  --color-error: var(--error);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+
+  /* Shadows */
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-gold: var(--shadow-gold);
+
+  /* Border Radius */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-full: var(--radius-full);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* === STYLES DE BASE === */
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+/* === UTILITAIRES CUSTOM === */
+
+/* Gradients */
+.gradient-gold {
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 50%, var(--primary-dark) 100%);
+}
+
+.gradient-dark {
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+}
+
+.gradient-mystique {
+  background: linear-gradient(180deg, var(--background) 0%, var(--beige) 100%);
+}
+
+/* Focus ring accessible */
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background: var(--primary);
+  color: var(--white);
 }
