@@ -76,11 +76,15 @@ export default function ShareCard({ card }: ShareCardProps) {
       console.error('Card image not loaded properly');
     }
 
-    // Card image - centered, larger for Story format
-    const cardWidth = 450;
-    const cardHeight = 675;
+    // === LAYOUT CENTRÉ VERTICALEMENT ===
+    // Carte : 500x750, Nom : 60px, Logo : 150px, Textes : ~80px
+    // Total contenu : ~1180px → Marge haut/bas : (1920-1180)/2 = 370px
+
+    // Card image - centered
+    const cardWidth = 500;
+    const cardHeight = 750;
     const cardX = (width - cardWidth) / 2;
-    const cardY = 150;
+    const cardY = 370;
 
     // Draw card with rounded corners
     ctx.save();
@@ -97,56 +101,26 @@ export default function ShareCard({ card }: ShareCardProps) {
     ctx.roundRect(cardX, cardY, cardWidth, cardHeight, 20);
     ctx.stroke();
 
-    // Card name - centered below card
-    const nameY = cardY + cardHeight + 70;
+    // Decorative line above name
+    const nameY = cardY + cardHeight + 80;
+    ctx.strokeStyle = '#A68245';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(width / 2 - 150, nameY - 30);
+    ctx.lineTo(width / 2 + 150, nameY - 30);
+    ctx.stroke();
+
+    // Card name - centered
     ctx.fillStyle = '#4A3728';
     ctx.font = 'bold 56px Georgia, serif';
     ctx.textAlign = 'center';
     ctx.fillText(card.name, width / 2, nameY);
 
     // Decorative line under name
-    ctx.strokeStyle = '#A68245';
-    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(width / 2 - 150, nameY + 20);
-    ctx.lineTo(width / 2 + 150, nameY + 20);
+    ctx.moveTo(width / 2 - 150, nameY + 25);
+    ctx.lineTo(width / 2 + 150, nameY + 25);
     ctx.stroke();
-
-    // Keywords - centered
-    ctx.fillStyle = '#A68245';
-    ctx.font = 'italic 32px Georgia, serif';
-    ctx.fillText(card.keywords, width / 2, nameY + 70);
-
-    // Reset text align for sections
-    ctx.textAlign = 'left';
-    const sectionX = 100;
-    const sectionWidth = width - 200;
-
-    // Blocage section
-    const blocageY = nameY + 140;
-
-    // Blocage header with decorative element
-    ctx.fillStyle = '#722F37';
-    ctx.font = 'bold 32px Georgia, serif';
-    ctx.fillText('✦ Blocage inconscient', sectionX, blocageY);
-
-    ctx.fillStyle = '#4A3728';
-    ctx.font = '28px Georgia, serif';
-    wrapText(ctx, card.blocage, sectionX, blocageY + 50, sectionWidth, 40);
-
-    // Resonance section
-    const resonanceY = blocageY + 220;
-
-    ctx.fillStyle = '#A68245';
-    ctx.font = 'bold 32px Georgia, serif';
-    ctx.fillText('✦ Résonance personnelle', sectionX, resonanceY);
-
-    ctx.fillStyle = '#4A3728';
-    ctx.font = 'italic 28px Georgia, serif';
-    wrapText(ctx, card.resonance, sectionX, resonanceY + 50, sectionWidth, 40);
-
-    // Footer area - centered
-    const footerY = height - 200;
 
     // Load and draw logo - use absolute URL
     const logo = new Image();
@@ -160,23 +134,21 @@ export default function ShareCard({ card }: ShareCardProps) {
       logo.src = `${baseUrl}/images/logo/logo_LaTarotAcademie.png`;
     });
 
-    // Centered footer
-    ctx.textAlign = 'center';
-
     // Logo centered
-    const logoSize = 100;
+    const logoSize = 150;
     const logoX = (width - logoSize) / 2;
-    ctx.drawImage(logo, logoX, footerY, logoSize, logoSize);
+    const logoY = nameY + 100;
+    ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
 
     // Brand name
     ctx.fillStyle = '#4A3728';
-    ctx.font = 'bold 32px Georgia, serif';
-    ctx.fillText('La Tarot Académie', width / 2, footerY + logoSize + 40);
+    ctx.font = 'bold 40px Georgia, serif';
+    ctx.fillText('La Tarot Académie', width / 2, logoY + logoSize + 50);
 
-    // Instagram handle with icon
+    // Instagram handle
     ctx.fillStyle = '#A68245';
-    ctx.font = '28px Georgia, serif';
-    ctx.fillText('@chiara.regazzoni_', width / 2, footerY + logoSize + 80);
+    ctx.font = '32px Georgia, serif';
+    ctx.fillText('@chiara.regazzoni_', width / 2, logoY + logoSize + 100);
 
     // Convert to blob
     return new Promise((resolve) => {
@@ -279,30 +251,3 @@ export default function ShareCard({ card }: ShareCardProps) {
   );
 }
 
-// Helper function to wrap text
-function wrapText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number
-) {
-  const words = text.split(' ');
-  let line = '';
-  let currentY = y;
-
-  for (let i = 0; i < words.length; i++) {
-    const testLine = line + words[i] + ' ';
-    const metrics = ctx.measureText(testLine);
-
-    if (metrics.width > maxWidth && i > 0) {
-      ctx.fillText(line.trim(), x, currentY);
-      line = words[i] + ' ';
-      currentY += lineHeight;
-    } else {
-      line = testLine;
-    }
-  }
-  ctx.fillText(line.trim(), x, currentY);
-}

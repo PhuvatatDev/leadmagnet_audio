@@ -57,6 +57,7 @@ export default function TarotDraw({ onCardDrawn }: TarotDrawProps) {
   const [isShuffling, setIsShuffling] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const randomizerRef = useRef<UltraRandomizer | null>(null);
+  const cardDisplayRef = useRef<HTMLDivElement | null>(null);
 
   // Initialiser le randomizer côté client uniquement
   useEffect(() => {
@@ -81,12 +82,20 @@ export default function TarotDraw({ onCardDrawn }: TarotDrawProps) {
         drawnAt: new Date().toISOString()
       }));
 
-      // Flip la carte après un court délai
+      // Scroll AVANT le flip pour voir l'animation
       setTimeout(() => {
-        setIsFlipped(true);
-        setIsShuffling(false);
-        onCardDrawn?.(card);
-      }, 100);
+        cardDisplayRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+
+        // Flip la carte après le scroll (400ms pour laisser le scroll se faire)
+        setTimeout(() => {
+          setIsFlipped(true);
+          setIsShuffling(false);
+          onCardDrawn?.(card);
+        }, 400);
+      }, 50);
     }, 1500);
   }, [isShuffling, onCardDrawn]);
 
@@ -115,7 +124,7 @@ export default function TarotDraw({ onCardDrawn }: TarotDrawProps) {
         </button>
       ) : (
         // Affichage de la carte
-        <div className="card-display">
+        <div className="card-display" ref={cardDisplayRef}>
           <CardFlip
             card={selectedCard}
             isFlipped={isFlipped}

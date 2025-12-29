@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import AudioPlayer from '@/components/AudioPlayer';
@@ -15,10 +15,25 @@ export default function ExperiencePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [canAccessTirage, setCanAccessTirage] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
+  const tirageSectionRef = useRef<HTMLElement | null>(null);
+  const justUnlockedRef = useRef(false);
 
   const handleCardDrawn = (card: TarotCard) => {
     setHasDrawn(true);
   };
+
+  // Scroll vers la section tirage quand elle se débloque
+  useEffect(() => {
+    if (canAccessTirage && justUnlockedRef.current) {
+      justUnlockedRef.current = false;
+      setTimeout(() => {
+        tirageSectionRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }, 300);
+    }
+  }, [canAccessTirage]);
 
   useEffect(() => {
     // Vérifier si l'email a été soumis
@@ -52,7 +67,7 @@ export default function ExperiencePage() {
   }
 
   return (
-    <main className="min-h-screen gradient-mystique px-4 py-16">
+    <main className="min-h-screen gradient-mystique px-4 py-16 overflow-x-hidden">
       <div className="max-w-2xl mx-auto space-y-12">
 
         {/* ============ SECTION AUDIO ============ */}
@@ -93,7 +108,10 @@ export default function ExperiencePage() {
           <AudioPlayer
             src="/audio/guidance.mp3"
             title="Déclic intérieur"
-            onComplete={() => setCanAccessTirage(true)}
+            onComplete={() => {
+              justUnlockedRef.current = true;
+              setCanAccessTirage(true);
+            }}
           />
 
           {/* Signature + Instagram */}
@@ -124,6 +142,7 @@ export default function ExperiencePage() {
 
         {/* ============ SECTION TIRAGE ============ */}
         <section
+          ref={tirageSectionRef}
           className={`relative text-center space-y-8 transition-all duration-500 py-12 ${!canAccessTirage ? 'opacity-40 pointer-events-none' : ''}`}
         >
           {/* Cartes décoratives - fond de toute la section */}
@@ -186,52 +205,68 @@ export default function ExperiencePage() {
 
         {/* ============ CTAs APRÈS TIRAGE ============ */}
         {hasDrawn && (
-          <section className="text-center space-y-6 pt-8 border-t border-beige">
-            <p className="text-lg text-secondary font-medium">
-              Je souhaite aller plus loin avec cette approche :
-            </p>
+          <section className="relative mt-8">
+            {/* Glassmorphism Card */}
+            <div className="relative backdrop-blur-md bg-white/30 border border-primary/30 rounded-2xl p-8 shadow-lg overflow-hidden">
+              {/* Decorative gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 pointer-events-none" />
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href={config.links.salesPage}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 gradient-gold text-white font-semibold rounded-xl hover:shadow-gold hover:-translate-y-0.5 transition-all"
-              >
-                ✦ Je rejoins la formation en tarot professionnel
-              </a>
-              <a
-                href={config.links.callBooking}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-secondary text-white font-semibold rounded-xl hover:bg-secondary-light hover:-translate-y-0.5 transition-all"
-              >
-                📞 Je réserve un call offert
-              </a>
-            </div>
+              {/* Decorative corner accents */}
+              <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-primary/40 rounded-tl-2xl" />
+              <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-primary/40 rounded-br-2xl" />
 
-            {/* IPHM Accreditation */}
-            <div className="flex flex-col items-center gap-3 pt-6 border-t border-beige/50">
-              <div className="flex items-center gap-3">
-                <Image
-                  src="/images/logo/IPHM_logo.jpg"
-                  alt="IPHM - International Practitioners of Holistic Medicine"
-                  width={60}
-                  height={60}
-                  className="rounded-lg"
-                />
-                <a
-                  href="https://www.iphm.co.uk/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs px-2 py-1 bg-beige/50 text-gray rounded-md hover:bg-beige transition-colors"
-                >
-                  info
-                </a>
+              {/* Content */}
+              <div className="relative z-10 text-center space-y-6">
+                <div className="space-y-2">
+                  <span className="text-primary text-2xl">✦</span>
+                  <p className="text-xl text-secondary font-semibold">
+                    Je souhaite aller plus loin avec cette approche
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-4">
+                  <a
+                    href={config.links.salesPage}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-4 gradient-gold text-white font-semibold rounded-xl shadow-md hover:shadow-gold hover:-translate-y-1 transition-all duration-300"
+                  >
+                    ✦ Je rejoins la formation
+                  </a>
+                  <a
+                    href={config.links.callBooking}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-secondary/90 backdrop-blur-sm text-white font-semibold rounded-xl shadow-md hover:bg-secondary hover:-translate-y-1 transition-all duration-300"
+                  >
+                    📞 Je réserve un call offert
+                  </a>
+                </div>
+
+                {/* IPHM Accreditation */}
+                <div className="flex flex-col items-center gap-3 pt-6 border-t border-primary/20">
+                  <div className="flex items-center gap-3">
+                    <Image
+                      src="/images/logo/IPHM_logo.jpg"
+                      alt="IPHM - International Practitioners of Holistic Medicine"
+                      width={50}
+                      height={50}
+                      className="rounded-lg shadow-sm"
+                    />
+                    <a
+                      href="https://www.iphm.co.uk/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs px-2 py-1 bg-white/50 text-secondary rounded-md hover:bg-white/80 transition-colors"
+                    >
+                      info
+                    </a>
+                  </div>
+                  <p className="text-sm text-secondary/80 max-w-sm">
+                    Formation accréditée IPHM
+                  </p>
+                </div>
               </div>
-              <p className="text-sm text-gray max-w-sm">
-                La formation en tarologie professionnelle est accréditée par l'organisme IPHM (International Practitioners of Holistic Medicine)
-              </p>
             </div>
           </section>
         )}
