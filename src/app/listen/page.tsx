@@ -9,6 +9,7 @@ import { getEmailSubmitted, getAudioCompleted } from '@/lib/storage';
 import { config } from '@/lib/config';
 import { TarotCard } from '@/lib/tarotDeck';
 
+
 export default function ExperiencePage() {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -153,6 +154,7 @@ export default function ExperiencePage() {
                 alt=""
                 width={140}
                 height={210}
+                style={{ width: 'auto', height: 'auto' }}
                 className="absolute left-1/2 top-1/2 -translate-x-[200%] -translate-y-1/2 -rotate-15 opacity-40 rounded-xl"
               />
               <Image
@@ -160,6 +162,7 @@ export default function ExperiencePage() {
                 alt=""
                 width={140}
                 height={210}
+                style={{ width: 'auto', height: 'auto' }}
                 className="absolute left-1/2 top-1/2 -translate-x-[115%] -translate-y-1/2 -rotate-5 opacity-40 rounded-xl"
               />
               <Image
@@ -167,6 +170,7 @@ export default function ExperiencePage() {
                 alt=""
                 width={140}
                 height={210}
+                style={{ width: 'auto', height: 'auto' }}
                 className="absolute left-1/2 top-1/2 translate-x-[15%] -translate-y-1/2 rotate-5 opacity-40 rounded-xl"
               />
               <Image
@@ -174,6 +178,7 @@ export default function ExperiencePage() {
                 alt=""
                 width={140}
                 height={210}
+                style={{ width: 'auto', height: 'auto' }}
                 className="absolute left-1/2 top-1/2 translate-x-[100%] -translate-y-1/2 rotate-15 opacity-40 rounded-xl"
               />
             </div>

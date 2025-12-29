@@ -77,14 +77,23 @@ export default function ShareCard({ card }: ShareCardProps) {
     }
 
     // === LAYOUT CENTRÉ VERTICALEMENT ===
-    // Carte : 500x750, Nom : 60px, Logo : 150px, Textes : ~80px
-    // Total contenu : ~1180px → Marge haut/bas : (1920-1180)/2 = 370px
+    // Texte intro : ~100px, Carte : 750px, Logo : 150px, Brand : ~50px
+    // Total contenu : ~1230px → Marge haut : ~300px
+
+    // Intro text - above card
+    const introY = 320;
+    ctx.fillStyle = '#4A3728';
+    ctx.font = '32px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Ma carte de tarot, tirée en ligne', width / 2, introY);
+    ctx.fillText('via La Tarot Académie,', width / 2, introY + 45);
+    ctx.fillText('créée par @chiara.regazzoni_', width / 2, introY + 90);
 
     // Card image - centered
     const cardWidth = 500;
     const cardHeight = 750;
     const cardX = (width - cardWidth) / 2;
-    const cardY = 370;
+    const cardY = introY + 150;
 
     // Draw card with rounded corners
     ctx.save();
@@ -101,27 +110,6 @@ export default function ShareCard({ card }: ShareCardProps) {
     ctx.roundRect(cardX, cardY, cardWidth, cardHeight, 20);
     ctx.stroke();
 
-    // Decorative line above name
-    const nameY = cardY + cardHeight + 80;
-    ctx.strokeStyle = '#A68245';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(width / 2 - 150, nameY - 30);
-    ctx.lineTo(width / 2 + 150, nameY - 30);
-    ctx.stroke();
-
-    // Card name - centered
-    ctx.fillStyle = '#4A3728';
-    ctx.font = 'bold 56px Georgia, serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(card.name, width / 2, nameY);
-
-    // Decorative line under name
-    ctx.beginPath();
-    ctx.moveTo(width / 2 - 150, nameY + 25);
-    ctx.lineTo(width / 2 + 150, nameY + 25);
-    ctx.stroke();
-
     // Load and draw logo - use absolute URL
     const logo = new Image();
 
@@ -134,21 +122,17 @@ export default function ShareCard({ card }: ShareCardProps) {
       logo.src = `${baseUrl}/images/logo/logo_LaTarotAcademie.png`;
     });
 
-    // Logo centered
+    // Logo centered - below card
     const logoSize = 150;
     const logoX = (width - logoSize) / 2;
-    const logoY = nameY + 100;
+    const logoY = cardY + cardHeight + 80;
     ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
 
     // Brand name
     ctx.fillStyle = '#4A3728';
     ctx.font = 'bold 40px Georgia, serif';
+    ctx.textAlign = 'center';
     ctx.fillText('La Tarot Académie', width / 2, logoY + logoSize + 50);
-
-    // Instagram handle
-    ctx.fillStyle = '#A68245';
-    ctx.font = '32px Georgia, serif';
-    ctx.fillText('@chiara.regazzoni_', width / 2, logoY + logoSize + 100);
 
     // Convert to blob
     return new Promise((resolve) => {

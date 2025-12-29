@@ -17,6 +17,8 @@ export default function AudioPlayer({ src, title = 'Audio exclusif', onComplete 
   const [duration, setDuration] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [maxListenedTime, setMaxListenedTime] = useState(0);
+  const isSeekingRef = useRef(false);
+  const hasRestoredProgressRef = useRef(false);
 
   // Vérifier si l'audio a déjà été complété + charger la progression sauvegardée
   useEffect(() => {
@@ -29,6 +31,7 @@ export default function AudioPlayer({ src, title = 'Audio exclusif', onComplete 
       const savedProgress = getAudioProgress();
       if (savedProgress > 0) {
         setMaxListenedTime(savedProgress);
+        hasRestoredProgressRef.current = true;
         // Positionner l'audio une fois chargé
         const audio = audioRef.current;
         if (audio) {
@@ -44,9 +47,16 @@ export default function AudioPlayer({ src, title = 'Audio exclusif', onComplete 
     if (!audio || isCompleted) return;
 
     const handleCanPlay = () => {
+      // Ne pas reset pendant un seek délibéré
+      if (isSeekingRef.current) return;
+
+      // Restaurer la progression UNE SEULE FOIS au chargement initial
+      if (hasRestoredProgressRef.current) return;
+
       const savedProgress = getAudioProgress();
       if (savedProgress > 0 && audio.currentTime < savedProgress) {
         audio.currentTime = savedProgress;
+        hasRestoredProgressRef.current = true;
       }
     };
 
@@ -84,6 +94,9 @@ export default function AudioPlayer({ src, title = 'Audio exclusif', onComplete 
     const audio = audioRef.current;
     if (!audio) return;
 
+    // Ne pas mettre à jour pendant un seek (évite les race conditions)
+    if (isSeekingRef.current) return;
+
     setCurrentTime(audio.currentTime);
 
     // Track max listened time (anti-skip)
@@ -98,19 +111,57 @@ export default function AudioPlayer({ src, title = 'Audio exclusif', onComplete 
     }
   }, [maxListenedTime]);
 
-  // Handle seeking (libre si complété, sinon limité au max écouté)
+  // Handle seeking (libre si complété, sinon peut revenir en arrière mais pas avancer)
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     const audio = audioRef.current;
     if (!audio || duration === 0) return;
 
-    const rect = e.currentTarget.getBoundingClientRect();
+    // Utiliser e.currentTarget pour avoir le div parent (la barre complète)
+    const progressBar = e.currentTarget;
+    const rect = progressBar.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
-    const clickPercent = clickX / rect.width;
+    const clickPercent = Math.max(0, Math.min(1, clickX / rect.width));
     const seekTime = clickPercent * duration;
 
-    // Si audio déjà complété → seeking libre, sinon limité
+    // Si audio déjà complété → seeking libre
+    // Sinon → peut aller jusqu'à maxListenedTime (retour en arrière OK)
     if (isCompleted || seekTime <= maxListenedTime) {
+      const wasPlaying = !audio.paused;
+
+      // Marquer qu'on est en train de seek (évite le reset par canplay)
+      isSeekingRef.current = true;
+
+      // Pause, seek, puis reprend
+      audio.pause();
       audio.currentTime = seekTime;
+
+      // Stocker la position cible
+      const targetTime = seekTime;
+
+      // Attendre que le seek soit effectif avant de reprendre
+      const handleSeeked = () => {
+        audio.removeEventListener('seeked', handleSeeked);
+
+        // Forcer la position une deuxième fois si nécessaire
+        if (Math.abs(audio.currentTime - targetTime) > 0.5) {
+          audio.currentTime = targetTime;
+        }
+
+        setCurrentTime(targetTime);
+
+        // Petit délai pour s'assurer que le seek est stable
+        setTimeout(() => {
+          // Re-vérifier la position avant de reprendre
+          if (Math.abs(audio.currentTime - targetTime) > 0.5) {
+            audio.currentTime = targetTime;
+          }
+          isSeekingRef.current = false;
+          if (wasPlaying) {
+            audio.play();
+          }
+        }, 100);
+      };
+      audio.addEventListener('seeked', handleSeeked);
     }
   };
 
@@ -207,12 +258,12 @@ export default function AudioPlayer({ src, title = 'Audio exclusif', onComplete 
         >
           {/* Max listened indicator (darker) */}
           <div
-            className="absolute h-full bg-primary-muted rounded-full transition-all duration-100"
+            className="absolute h-full bg-primary-muted rounded-full transition-all duration-100 pointer-events-none"
             style={{ width: `${(maxListenedTime / duration) * 100 || 0}%` }}
           />
           {/* Current position (gold) */}
           <div
-            className="absolute h-full gradient-gold rounded-full transition-all duration-100"
+            className="absolute h-full gradient-gold rounded-full transition-all duration-100 pointer-events-none"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -250,6 +301,27 @@ export default function AudioPlayer({ src, title = 'Audio exclusif', onComplete 
           <p className="text-xs text-gray text-center mt-4">
             Écoute l'audio en entier pour débloquer ton tirage
           </p>
+        )}
+
+        {/* Checkbox pour utilisateurs qui ont déjà écouté */}
+        {!isCompleted && (
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <input
+              type="checkbox"
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setIsCompleted(true);
+                  setMaxListenedTime(Infinity);
+                  setAudioCompleted(true);
+                  onComplete?.();
+                }
+              }}
+              className="w-4 h-4 rounded border-2 border-beige bg-cream text-primary focus:ring-primary focus:ring-2 cursor-pointer"
+            />
+            <span className="text-xs text-gray">
+              Je confirme que j'ai écouté tout l'audio
+            </span>
+          </div>
         )}
       </div>
 
