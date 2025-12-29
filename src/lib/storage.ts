@@ -4,6 +4,7 @@
 const STORAGE_KEYS = {
   EMAIL_SUBMITTED: 'emailSubmitted',
   AUDIO_COMPLETED: 'audioCompleted',
+  AUDIO_PROGRESS: 'audioProgress',
   LAST_DRAWN_CARD: 'lastDrawnCard',
 } as const;
 
@@ -51,6 +52,23 @@ export function getAudioCompleted(): boolean {
     return value ? JSON.parse(value) === true : false;
   } catch {
     return false;
+  }
+}
+
+// === AUDIO PROGRESS ===
+
+export function setAudioProgress(time: number): void {
+  if (!isLocalStorageAvailable()) return;
+  localStorage.setItem(STORAGE_KEYS.AUDIO_PROGRESS, time.toString());
+}
+
+export function getAudioProgress(): number {
+  if (!isLocalStorageAvailable()) return 0;
+  try {
+    const value = localStorage.getItem(STORAGE_KEYS.AUDIO_PROGRESS);
+    return value ? parseFloat(value) : 0;
+  } catch {
+    return 0;
   }
 }
 

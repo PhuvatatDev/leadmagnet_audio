@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import EmailForm from '@/components/EmailForm';
 import { getEmailSubmitted, getAudioCompleted } from '@/lib/storage';
 
@@ -15,8 +16,8 @@ export default function LandingPage() {
     const audioCompleted = getAudioCompleted();
 
     if (emailSubmitted) {
-      // Si audio complété → tirage, sinon → listen
-      router.replace(audioCompleted ? '/tirage' : '/listen');
+      // Tout est maintenant sur /listen
+      router.replace('/listen');
       return;
     }
 
@@ -36,9 +37,16 @@ export default function LandingPage() {
     <main className="min-h-screen gradient-mystique flex flex-col items-center justify-center px-4 py-16">
       {/* Hero Section */}
       <div className="text-center max-w-2xl mx-auto space-y-8">
-        {/* Symbole décoratif */}
-        <div className="text-6xl text-primary mb-4" aria-hidden="true">
-          ✦
+        {/* Logo */}
+        <div className="flex justify-center mb-4">
+          <Image
+            src="/images/logo/logo_LaTarotAcademie.png"
+            alt="La Tarot Académie"
+            width={200}
+            height={200}
+            className="w-auto h-24 md:h-32"
+            priority
+          />
         </div>
 
         {/* Titre principal */}
@@ -48,11 +56,11 @@ export default function LandingPage() {
         </h1>
 
         {/* Sous-titre */}
-        <p className="text-lg md:text-xl text-charcoal leading-relaxed">
+        <p className="text-lg md:text-xl text-foreground font-bold leading-relaxed">
           Explore tes blocages inconscients grâce au tarot et transforme ta vie !
         </p>
 
-        <p className="text-lg text-secondary font-medium">
+        <p className="text-base text-secondary -mt-4">
           Découvre une approche qui va faire évoluer ta manière d'accompagner.
         </p>
 
@@ -61,15 +69,19 @@ export default function LandingPage() {
           <ul className="space-y-3 text-left text-charcoal">
             <li className="flex items-start gap-3">
               <span className="text-primary mt-0.5">✦</span>
-              <span>Audio de guidance exclusif</span>
+              <span>Audio immersif à écouter comme un podcast</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-primary mt-0.5">✦</span>
-              <span>Tirage gratuit des Arcanes Majeurs</span>
+              <span>Tirage avec la méthode du Tarot Conscient</span>
             </li>
             <li className="flex items-start gap-3">
               <span className="text-primary mt-0.5">✦</span>
-              <span>Message personnalisé pour toi</span>
+              <span>Révélation de ton blocage inconscient</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-primary mt-0.5">✦</span>
+              <span>Possibilité de rejoindre la formation professionnelle</span>
             </li>
           </ul>
         </div>

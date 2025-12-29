@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import CardFlip from './CardFlip';
+import ShareCard from './ShareCard';
 import { TarotCard, tarotDeck } from '@/lib/tarotDeck';
 
 // === SYSTÈME DE RANDOMISATION ULTRA-SÉCURISÉ ===
@@ -128,6 +129,7 @@ export default function TarotDraw({ onCardDrawn }: TarotDrawProps) {
               >
                 <span>ℹ️</span> Signification
               </button>
+              <ShareCard card={selectedCard} />
               <button
                 className="action-button close-button"
                 onClick={handleReset}

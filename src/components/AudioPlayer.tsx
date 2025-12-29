@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { setAudioCompleted, getAudioCompleted } from '@/lib/storage';
+import { setAudioCompleted, getAudioCompleted, getAudioProgress, setAudioProgress } from '@/lib/storage';
 
 interface AudioPlayerProps {
   src: string;
@@ -18,20 +18,51 @@ export default function AudioPlayer({ src, title = 'Audio exclusif', onComplete 
   const [isCompleted, setIsCompleted] = useState(false);
   const [maxListenedTime, setMaxListenedTime] = useState(0);
 
-  // Vérifier si l'audio a déjà été complété (permet le seeking libre)
+  // Vérifier si l'audio a déjà été complété + charger la progression sauvegardée
   useEffect(() => {
     const alreadyCompleted = getAudioCompleted();
     if (alreadyCompleted) {
       setIsCompleted(true);
       setMaxListenedTime(Infinity); // Permet de naviguer partout
+    } else {
+      // Charger la progression sauvegardée
+      const savedProgress = getAudioProgress();
+      if (savedProgress > 0) {
+        setMaxListenedTime(savedProgress);
+        // Positionner l'audio une fois chargé
+        const audio = audioRef.current;
+        if (audio) {
+          audio.currentTime = savedProgress;
+        }
+      }
     }
   }, []);
 
-  // Cleanup effect
+  // Positionner l'audio quand les métadonnées sont chargées (pour la reprise)
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || isCompleted) return;
+
+    const handleCanPlay = () => {
+      const savedProgress = getAudioProgress();
+      if (savedProgress > 0 && audio.currentTime < savedProgress) {
+        audio.currentTime = savedProgress;
+      }
+    };
+
+    audio.addEventListener('canplay', handleCanPlay);
+    return () => audio.removeEventListener('canplay', handleCanPlay);
+  }, [isCompleted]);
+
+  // Cleanup effect - sauvegarder quand on quitte la page
   useEffect(() => {
     const audio = audioRef.current;
     return () => {
       if (audio) {
+        // Sauvegarder la progression avant de quitter
+        if (audio.currentTime > 0 && !getAudioCompleted()) {
+          setAudioProgress(audio.currentTime);
+        }
         audio.pause();
       }
     };
@@ -48,6 +79,7 @@ export default function AudioPlayer({ src, title = 'Audio exclusif', onComplete 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   // Handle time update
+  const lastSavedRef = useRef(0);
   const handleTimeUpdate = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -57,6 +89,12 @@ export default function AudioPlayer({ src, title = 'Audio exclusif', onComplete 
     // Track max listened time (anti-skip)
     if (audio.currentTime > maxListenedTime) {
       setMaxListenedTime(audio.currentTime);
+
+      // Sauvegarder la progression toutes les 5 secondes
+      if (audio.currentTime - lastSavedRef.current >= 5) {
+        setAudioProgress(audio.currentTime);
+        lastSavedRef.current = audio.currentTime;
+      }
     }
   }, [maxListenedTime]);
 
@@ -127,6 +165,10 @@ export default function AudioPlayer({ src, title = 'Audio exclusif', onComplete 
 
     if (isPlaying) {
       audio.pause();
+      // Sauvegarder la progression quand on met en pause
+      if (!isCompleted) {
+        setAudioProgress(audio.currentTime);
+      }
     } else {
       audio.play();
     }
@@ -195,8 +237,8 @@ export default function AudioPlayer({ src, title = 'Audio exclusif', onComplete 
                 <rect x="14" y="4" width="4" height="16" rx="1" />
               </svg>
             ) : (
-              // Play icon
-              <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+              // Play icon (décalé visuellement pour paraître centré)
+              <svg className="w-6 h-6 text-white translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
               </svg>
             )}
