@@ -190,6 +190,3 @@ MAILCHIMP_SERVER_PREFIX=us21
 - Route protection via localStorage
 - DevNav disabled in production (`NODE_ENV`)
 
-## License
-
-MIT License - La Tarot Academie
