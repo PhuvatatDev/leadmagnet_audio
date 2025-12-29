@@ -192,4 +192,4 @@ MAILCHIMP_SERVER_PREFIX=us21
 
 ## License
 
-Private project - La Tarot Academie
+MIT License - La Tarot Academie
