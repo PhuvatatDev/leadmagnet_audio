@@ -1,160 +1,160 @@
-# Leadmagnet Audio - La Tarot Académie
+# Leadmagnet Audio - La Tarot Academie
 
-Landing page de capture d'emails avec audio exclusif et tirage de tarot interactif.
+Email capture landing page with exclusive audio content and interactive tarot card drawing.
 
-## Apercu du Projet
+## Project Overview
 
-Application web complete permettant aux visiteurs de :
-1. S'inscrire via leur email (integration Mailchimp)
-2. Acceder a un audio exclusif de guidance
-3. Effectuer un tirage de carte tarot personnalise
-4. Partager leur tirage sur Instagram (mobile)
+Complete web application allowing visitors to:
+1. Subscribe via email (Mailchimp integration)
+2. Access an exclusive audio guidance session
+3. Perform a personalized tarot card reading
+4. Share their reading on Instagram (mobile)
 
-## Stack Technique
+## Tech Stack
 
-| Technologie | Version | Usage |
-|-------------|---------|-------|
-| **Next.js** | 16.1.1 | Framework React avec App Router |
-| **React** | 19.2.3 | Bibliotheque UI |
-| **TypeScript** | 5.x | Typage statique |
-| **Tailwind CSS** | 4.x | Styling utility-first |
-| **Vercel** | - | Hebergement & deploiement |
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Next.js** | 16.1.1 | React framework with App Router |
+| **React** | 19.2.3 | UI library |
+| **TypeScript** | 5.x | Static typing |
+| **Tailwind CSS** | 4.x | Utility-first styling |
+| **Vercel** | - | Hosting & deployment |
 
-## Fonctionnalites Techniques
+## Technical Features
 
-### 1. Integration API Mailchimp
+### 1. Mailchimp API Integration
 
 ```
-src/app/api/subscribe/route.ts  -> API Route Next.js (server-side)
-src/lib/mailchimp.ts            -> Client Mailchimp
+src/app/api/subscribe/route.ts  -> Next.js API Route (server-side)
+src/lib/mailchimp.ts            -> Mailchimp client
 ```
 
-- Inscription securisee cote serveur (API keys protegees)
-- Validation email cote client ET serveur
-- Gestion des erreurs (email deja inscrit, format invalide)
+- Secure server-side subscription (protected API keys)
+- Client AND server-side email validation
+- Error handling (already subscribed, invalid format)
 
-### 2. Moteur de Tirage Ultra-Securise
+### 2. Ultra-Secure Card Drawing Engine
 
 ```typescript
-// src/components/TarotDraw.tsx - Classe UltraRandomizer
+// src/components/TarotDraw.tsx - UltraRandomizer Class
 
 class UltraRandomizer {
-  // Combine 3 sources d'entropie :
-  // 1. crypto.getRandomValues() - API Web Crypto
-  // 2. Date.now() - Timestamp haute precision
-  // 3. Mouvements souris - Entropie utilisateur
+  // Combines 3 entropy sources:
+  // 1. crypto.getRandomValues() - Web Crypto API
+  // 2. Date.now() - High precision timestamp
+  // 3. Mouse movements - User entropy
 }
 ```
 
-- **22 Arcanes Majeurs** avec donnees completes (nom, keywords, blocage, resonance)
-- Animation de melange + flip 3D CSS
-- Persistance localStorage du dernier tirage
+- **22 Major Arcana** with complete data (name, keywords, blockage, resonance)
+- Shuffle animation + CSS 3D flip
+- localStorage persistence of last drawn card
 
-### 3. Lecteur Audio Avance
+### 3. Advanced Audio Player
 
 ```
 src/components/AudioPlayer.tsx
 src/hooks/useAudioProgress.ts
 ```
 
-- Anti-skip : progression lineaire obligatoire
-- Persistance de la progression (localStorage)
-- Media Session API pour controles mobile
-- Deblocage du tirage uniquement apres ecoute 100%
+- Anti-skip: linear progression required
+- Progress persistence (localStorage)
+- Media Session API for mobile controls
+- Card drawing unlocked only after 100% completion
 
-### 4. Generation d'Image pour Partage Instagram
+### 4. Instagram Story Image Generation
 
 ```
 src/components/ShareCard.tsx
 ```
 
-- Canvas API pour generation d'image
-- Format Instagram Story (1080x1920)
-- Web Share API (mobile uniquement)
-- Fallback telechargement si non supporte
+- Canvas API for image generation
+- Instagram Story format (1080x1920)
+- Web Share API (mobile only)
+- Download fallback if not supported
 
-### 5. Systeme de Protection des Pages
+### 5. Page Protection System
 
 ```
 src/lib/storage.ts
 ```
 
-| localStorage Key | Debloque |
-|------------------|----------|
+| localStorage Key | Unlocks |
+|------------------|---------|
 | `emailSubmitted` | `/listen` |
-| `audioCompleted` | Section tirage |
-| `audioProgress` | Reprise audio |
+| `audioCompleted` | Card drawing section |
+| `audioProgress` | Audio resume |
 
 ## Architecture
 
 ```
 src/
 ├── app/
-│   ├── api/subscribe/route.ts   # API Mailchimp (server-side)
-│   ├── listen/page.tsx          # Page experience (audio + tirage)
-│   ├── tirage/page.tsx          # Redirect vers /listen
-│   ├── layout.tsx               # Layout global + metadata
+│   ├── api/subscribe/route.ts   # Mailchimp API (server-side)
+│   ├── listen/page.tsx          # Experience page (audio + drawing)
+│   ├── tirage/page.tsx          # Redirect to /listen
+│   ├── layout.tsx               # Global layout + metadata
 │   ├── page.tsx                 # Landing page
 │   └── globals.css              # Theme + Tailwind
 │
 ├── components/
-│   ├── ui/                      # Composants reutilisables
+│   ├── ui/                      # Reusable components
 │   │   ├── Button.tsx
 │   │   └── Input.tsx
-│   ├── AudioPlayer.tsx          # Lecteur audio custom
-│   ├── CardFlip.tsx             # Animation flip 3D
-│   ├── EmailForm.tsx            # Formulaire inscription
-│   ├── ShareCard.tsx            # Generation image partage
-│   ├── TarotDraw.tsx            # Moteur de tirage
-│   └── DevNav.tsx               # Navigation dev (hidden en prod)
+│   ├── AudioPlayer.tsx          # Custom audio player
+│   ├── CardFlip.tsx             # 3D flip animation
+│   ├── EmailForm.tsx            # Subscription form
+│   ├── ShareCard.tsx            # Share image generation
+│   ├── TarotDraw.tsx            # Card drawing engine
+│   └── DevNav.tsx               # Dev navigation (hidden in prod)
 │
 ├── lib/
-│   ├── config.ts                # URLs externes (sales, booking)
-│   ├── mailchimp.ts             # Client API Mailchimp
-│   ├── storage.ts               # Helpers localStorage
-│   ├── tarotDeck.ts             # 22 Arcanes Majeurs data
-│   └── theme.ts                 # Palette couleurs
+│   ├── config.ts                # External URLs (sales, booking)
+│   ├── mailchimp.ts             # Mailchimp API client
+│   ├── storage.ts               # localStorage helpers
+│   ├── tarotDeck.ts             # 22 Major Arcana data
+│   └── theme.ts                 # Color palette
 │
 └── hooks/
-    └── useAudioProgress.ts      # Hook tracking audio
+    └── useAudioProgress.ts      # Audio tracking hook
 ```
 
 ## Design System
 
-### Palette Mystique
+### Mystic Palette
 
-| Couleur | Hex | Usage |
-|---------|-----|-------|
-| Background | `#F5F0E8` | Beige chaleureux |
-| Primary | `#A68245` | Dore (identite tarot) |
-| Secondary | `#4A3728` | Brun profond |
-| Tertiary | `#722F37` | Bordeaux mystique |
+| Color | Hex | Usage |
+|-------|-----|-------|
+| Background | `#F5F0E8` | Warm beige |
+| Primary | `#A68245` | Gold (tarot identity) |
+| Secondary | `#4A3728` | Deep brown |
+| Tertiary | `#722F37` | Mystic burgundy |
 
-### Effets UI
+### UI Effects
 
-- **Glassmorphisme** : Cards avec `backdrop-blur` + transparence
-- **Gradients dores** : CTAs et elements d'action
-- **Animations** : Flip 3D, transitions smooth, hover effects
+- **Glassmorphism**: Cards with `backdrop-blur` + transparency
+- **Gold gradients**: CTAs and action elements
+- **Animations**: 3D flip, smooth transitions, hover effects
 
 ## Installation
 
 ```bash
-# Cloner le repo
-git clone https://github.com/[username]/leadmagnet_audio.git
+# Clone the repo
+git clone https://github.com/PhuvatatDev/leadmagnet_audio.git
 cd leadmagnet_audio
 
-# Installer les dependances
+# Install dependencies
 npm install
 
-# Configurer les variables d'environnement
+# Configure environment variables
 cp .env.example .env.local
-# Editer .env.local avec vos cles Mailchimp
+# Edit .env.local with your Mailchimp keys
 
-# Lancer en developpement
+# Run development server
 npm run dev
 ```
 
-## Variables d'Environnement
+## Environment Variables
 
 ```env
 MAILCHIMP_API_KEY=xxx-us21
@@ -162,19 +162,19 @@ MAILCHIMP_AUDIENCE_ID=abc123
 MAILCHIMP_SERVER_PREFIX=us21
 ```
 
-## Deploiement Vercel
+## Vercel Deployment
 
-1. Push sur GitHub
-2. Connecter le repo a Vercel
-3. Ajouter les variables d'environnement
-4. Deploy automatique
+1. Push to GitHub
+2. Connect repo to Vercel
+3. Add environment variables
+4. Automatic deployment
 
-## Flow Utilisateur
+## User Flow
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Landing   │ --> │   Listen    │ --> │   Tirage    │
-│   (Email)   │     │   (Audio)   │     │   (Carte)   │
+│   Landing   │ --> │   Listen    │ --> │  Card Draw  │
+│   (Email)   │     │   (Audio)   │     │   (Tarot)   │
 └─────────────┘     └─────────────┘     └─────────────┘
        │                   │                   │
        v                   v                   v
@@ -183,13 +183,13 @@ MAILCHIMP_SERVER_PREFIX=us21
                      audioCompleted
 ```
 
-## Securite
+## Security
 
-- API Keys uniquement cote serveur (API Routes)
-- Validation double (client + serveur)
-- Protection des routes par localStorage
-- DevNav desactive en production (`NODE_ENV`)
+- API Keys server-side only (API Routes)
+- Double validation (client + server)
+- Route protection via localStorage
+- DevNav disabled in production (`NODE_ENV`)
 
-## Licence
+## License
 
-Projet prive - La Tarot Academie
+Private project - La Tarot Academie
